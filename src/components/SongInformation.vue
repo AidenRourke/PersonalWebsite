@@ -24,6 +24,7 @@
             return {
                 song: undefined,
                 current: false,
+                evtSource: undefined,
                 arrayOfObjects: [
                     {
                         name: "life",
@@ -67,8 +68,8 @@
         async created() {
             try {
                 // Listen for a change in the current song for the server
-                const evtSource = new EventSource("https://boiling-retreat-37107.herokuapp.com/stream");
-                evtSource.addEventListener('message', function (e) {
+                this.evtSource = new EventSource("https://boiling-retreat-37107.herokuapp.com/stream");
+                this.evtSource.addEventListener('message', function (e) {
                     const res = JSON.parse(e.data);
                     if (res.name) {
                         this.song = res;
@@ -89,5 +90,8 @@
 
             this.$emit('loaded')
         },
+        destroyed() {
+            this.evtSource.close();
+        }
     }
 </script>
