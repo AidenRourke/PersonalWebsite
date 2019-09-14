@@ -1,10 +1,10 @@
 // vue.config.js
 module.exports = {
-    publicPath: "PersonalWebsite"
-}
+    publicPath: "/PersonalWebsite/"
+};
 
 module.exports = {
     css: {
         sourceMap: true
     }
-}
+};
