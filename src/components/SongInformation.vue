@@ -57,38 +57,24 @@
                     this.current = false;
                 }
             },
-            async getCurrentSong() {
-                const res = await axios.get(`https://boiling-retreat-37107.herokuapp.com/current_song`);
-                if (res.data) {
-                    this.song = res.data;
-                    this.current = true;
-                }
-            }
         },
         async created() {
             try {
                 // Listen for a change in the current song for the server
-                this.evtSource = new EventSource("https://boiling-retreat-37107.herokuapp.com/stream");
+                this.evtSource = new EventSource(`https://boiling-retreat-37107.herokuapp.com/stream`);
                 this.evtSource.addEventListener('message', function (e) {
                     const res = JSON.parse(e.data);
                     if (res.name) {
                         this.song = res;
                         if (!this.current) this.current = true;
-                        this.$emit('loaded');
                     } else {
                         this.getTopTrack()
                     }
+                    this.$emit('loaded')
                 }.bind(this), false);
             } catch (e) {
                 console.log("can't connect")
             }
-
-            // Initialize with current song or top track
-            await this.getCurrentSong();
-
-            if (!this.current) await this.getTopTrack();
-
-            this.$emit('loaded')
         },
         destroyed() {
             this.evtSource.close();
