@@ -106,7 +106,7 @@
             <div class="resume-item-info">
                 <h3>Personal Website</h3>
                 <i>September 2019</i>
-                <p>A website that displays information about myself made with a VueJS web app and a NodeJS server.The
+                <p>A website that displays information about myself made with a VueJS front web app a NodeJS server. The
                     server queries the Spotify API and communicates real time updates to the browser using Server-Sent
                     Events.</p>
                 <div class="svg-link-container">

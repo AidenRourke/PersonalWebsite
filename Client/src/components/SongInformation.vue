@@ -25,7 +25,6 @@
                 song: undefined,
                 current: false,
                 evtSource: undefined,
-                loaded: false,
                 arrayOfObjects: [
                     {
                         name: "life",
@@ -52,7 +51,7 @@
                 await this.getTopTrack();
             },
             async getTopTrack() {
-                const res = await axios.get(`http://localhost:8888/top_track?time_range=${this.timerange.value}`);
+                const res = await axios.get(`https://boiling-retreat-37107.herokuapp.com/top_track?time_range=${this.timerange.value}`);
                 if (res.data) {
                     this.song = res.data;
                     this.current = false;
@@ -62,7 +61,7 @@
         async created() {
             try {
                 // Listen for a change in the current song for the server
-                this.evtSource = new EventSource(`http://localhost:8888/stream`);
+                this.evtSource = new EventSource(`https://boiling-retreat-37107.herokuapp.com/stream`);
                 this.evtSource.addEventListener('message', function (e) {
                     const res = JSON.parse(e.data);
                     if (res.name) {

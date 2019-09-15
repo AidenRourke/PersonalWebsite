@@ -1,0 +1,11 @@
+#!/bin/bash
+
+node setup_db.js
+
+git add .
+
+git commit -m "update"
+
+git push heroku master
+
+git push origin master
