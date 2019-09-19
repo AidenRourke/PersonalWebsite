@@ -15,7 +15,9 @@
 
 <script>
     import Dropdown from './Dropdown';
-    import axios from "axios";
+    import ApiService from '../services/ApiService';
+
+    let evtSource;
 
     export default {
         name: "SongInformation",
@@ -24,7 +26,6 @@
             return {
                 song: undefined,
                 current: false,
-                evtSource: undefined,
                 arrayOfObjects: [
                     {
                         name: "life",
@@ -51,7 +52,7 @@
                 await this.getTopTrack();
             },
             async getTopTrack() {
-                const res = await axios.get(`https://whispering-tundra-82613.herokuapp.com/top_track?time_range=${this.timerange.value}`);
+                const res = await ApiService.getTopTrack(this.timerange.value);
                 if (res.data) {
                     this.song = res.data;
                     this.current = false;
@@ -61,8 +62,8 @@
         async created() {
             try {
                 // Listen for a change in the current song for the server
-                this.evtSource = new EventSource(`https://whispering-tundra-82613.herokuapp.com/stream`);
-                this.evtSource.addEventListener('message', function (e) {
+                evtSource = ApiService.startSSE();
+                evtSource.addEventListener('message', function (e) {
                     const res = JSON.parse(e.data);
                     if (res.name) {
                         this.song = res;
@@ -77,7 +78,7 @@
             }
         },
         destroyed() {
-            this.evtSource.close();
+            evtSource.close();
         }
     }
 </script>
