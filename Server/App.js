@@ -5,11 +5,11 @@ const request = require('request'); // "Request" library
 const cors = require('cors');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
-const microdb = require('nodejs-microdb');
 const {generateRandomString} = require('./utils');
 const checkPermission = require('./middleware/checkPermission');
 const sse = require('./middleware/sse');
 const SpotifyWebApi = require('spotify-web-api-node');
+const {Pool} = require('pg');
 
 const client_id = process.env.CLIENT_ID; // Your client id
 const client_secret = process.env.CLIENT_SECRET; // Your secret
@@ -19,9 +19,9 @@ const stateKey = 'spotify_auth_state';
 
 const app = express();
 
-const db = new microdb({
-    'file': './database/database.json',
-    'savetime': 1
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
 });
 
 const spotifyApi = new SpotifyWebApi();
@@ -29,34 +29,34 @@ const spotifyApi = new SpotifyWebApi();
 app.use(express.static(`${__dirname}/public`))
     .use(cors())
     .use(cookieParser())
-    .use(checkPermission({db}))
+    .use(checkPermission({pool}))
     .use(sse);
 
 const refreshToken = function () {
 
-    const refresh_token = db.data["refresh_token"];
+    pool.query("SELECT refresh_token FROM spotify", (err, res) => {
+        const options = {
+            url: 'https://accounts.spotify.com/api/token',
+            headers: {'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))},
+            form: {
+                grant_type: 'refresh_token',
+                refresh_token: res.rows[0].refresh_token
+            },
+            json: true
+        };
 
-    const options = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))},
-        form: {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token
-        },
-        json: true
-    };
-
-    request.post(options, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            const access_token = body.access_token;
-            spotifyApi.setAccessToken(access_token);
-        }
+        request.post(options, function (error, response, body) {
+            if (!error && response.statusCode === 200) {
+                const access_token = body.access_token;
+                spotifyApi.setAccessToken(access_token);
+            }
+        });
     });
 };
 
 refreshToken();
 
-function pollSpotify(req, res) {
+function pollSpotify(request, response) {
     let previouslyPlaying;
     let first = true;
 
@@ -67,22 +67,27 @@ function pollSpotify(req, res) {
                 function (data) {
                     if (!data.body.item) {
                         if (previouslyPlaying || first) {
-                            res.write(`data: ${JSON.stringify({})}\n\n`);
+                            response.write(`data: ${JSON.stringify({})}\n\n`);
                         }
                         else {
-                            res.write(`\n`);
+                            response.write(`\n`);
                         }
                         if (previouslyPlaying) previouslyPlaying = false;
                     }
                     else {
-                        const currentSongId = db.data["current_song_id"];
-                        if (!previouslyPlaying || currentSongId !== data.body.item.id || first) {
-                            db.add(data.body.item.id, "current_song_id");
-                            res.write(`data: ${JSON.stringify(data.body.item)}\n\n`);
-                        } else {
-                            res.write(`\n`);
-                        }
-                        if (!previouslyPlaying) previouslyPlaying = true;
+                        pool.query("SELECT current_song_id FROM spotify", (err, res) => {
+                            const currentSongId = res.rows[0].current_song_id;
+                            if (!previouslyPlaying || currentSongId !== data.body.item.id || first) {
+                                pool.query({
+                                    text: "UPDATE spotify SET current_song_id = $1",
+                                    values: [data.body.item.id]
+                                });
+                                response.write(`data: ${JSON.stringify(data.body.item)}\n\n`);
+                            } else {
+                                response.write(`\n`);
+                            }
+                            if (!previouslyPlaying) previouslyPlaying = true;
+                        });
                     }
                     if (first) first = false;
                 },
@@ -92,20 +97,20 @@ function pollSpotify(req, res) {
             );
     }, 1000);
 
-    req.on('close', () => {
+    request.on('close', () => {
         console.log("Polling ended");
         clearInterval(interval);
     });
 }
 
-app.get('/stream', function (req, res) {
-    res.writeHead(200, {
+app.get('/stream', function (request, response) {
+    response.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
     });
 
-    pollSpotify(req, res)
+    pollSpotify(request, response)
 });
 
 app.get('/top_track', function (req, res) {
@@ -180,7 +185,10 @@ app.get('/callback', function (req, res) {
                 const {refresh_token, access_token, expires_in} = body;
 
                 // Store Refresh and Access token
-                db.add(refresh_token, "refresh_token");
+                pool.query({
+                    text: "UPDATE spotify SET refresh_token = $1",
+                    values: [refresh_token]
+                });
                 spotifyApi.setAccessToken(access_token);
                 startRefresh(expires_in);
                 res.send("Successfully authenticated");

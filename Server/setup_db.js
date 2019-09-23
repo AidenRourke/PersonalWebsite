@@ -1,25 +1,43 @@
-require('dotenv').config();
+/*
+Assumes the following tables have been created
+CREATE TABLE admin(
+    username VARCHAR(20),
+    password VARCHAR(200) NOT NULL,
+    salt VARCHAR(16) NOT NULL,
+    PRIMARY KEY (username)
+    );
 
-var microdb = require('nodejs-microdb');
+CREATE TABLE spotify(
+    lock char(1),
+    refresh_token VARCHAR(200),
+    current_song_id VARCHAR(30),
+    PRIMARY KEY (lock)
+    );
+ */
+
+require('dotenv').config();
+const {Pool} = require('pg');
+
 const {sha512, generateRandomString} = require('./utils');
 
-var db = new microdb({
-    'file': './database/database.json',
-    'savetime': 1
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
 });
 
-const username = "aidenrourke";
+const username = process.env.ADMIN_USERNAME;
 const salt = generateRandomString(16);
 const password = sha512(process.env.ADMIN_PASSWORD, salt);
 
-console.log("Adding data");
+const query = {
+    text: "INSERT INTO admin(username, password, salt) VALUES($1, $2, $3)",
+    values: [username, password.passwordHash, salt]
+};
 
-db.add({
-    username,
-    password: password.passwordHash,
-    salt,
-}, "admin");
+pool.query(query, (err, res) => {
+    console.log(err, res);
+});
 
-console.log("New data:", db.data);
-
-process.exit();
+pool.query("INSERT INTO spotify(lock) VALUES('X')", (err, res) => {
+    console.log(err, res);
+});
