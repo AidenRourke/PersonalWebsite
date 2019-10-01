@@ -22,19 +22,17 @@ const {sha512, generateRandomString} = require('./utils');
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: true
+    // ssl: true
 });
 
 const username = process.env.ADMIN_USERNAME;
 const salt = generateRandomString(16);
 const password = sha512(process.env.ADMIN_PASSWORD, salt);
 
-const query = {
+pool.query({
     text: "INSERT INTO admin(username, password, salt) VALUES($1, $2, $3)",
     values: [username, password.passwordHash, salt]
-};
-
-pool.query(query, (err, res) => {
+}, (err, res) => {
     console.log(err, res);
 });
 

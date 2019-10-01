@@ -3,9 +3,10 @@ require('dotenv').config();
 const express = require('express'); // Express web server framework
 const request = require('request'); // "Request" library
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
-const {generateRandomString} = require('./utils');
+const {generateRandomString, getRandom} = require('./utils');
 const checkPermission = require('./middleware/checkPermission');
 const sse = require('./middleware/sse');
 const SpotifyWebApi = require('spotify-web-api-node');
@@ -21,7 +22,7 @@ const app = express();
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: true
+    // ssl: true
 });
 
 const spotifyApi = new SpotifyWebApi();
@@ -30,6 +31,7 @@ app.use(express.static(`${__dirname}/public`))
     .use(cors())
     .use(cookieParser())
     .use(checkPermission({pool}))
+    .use(bodyParser.json())
     .use(sse);
 
 const refreshToken = function () {
@@ -67,7 +69,7 @@ function pollSpotify(request, response) {
                 function (data) {
                     if (!data.body.item) {
                         if (previouslyPlaying || first) {
-                            response.write(`data: ${JSON.stringify({})}\n\n`);
+                            response.write(`data: ${JSON.stringify({})}`);
                         }
                         else {
                             response.write(`\n`);
@@ -82,7 +84,7 @@ function pollSpotify(request, response) {
                                     text: "UPDATE spotify SET current_song_id = $1",
                                     values: [data.body.item.id]
                                 });
-                                response.write(`data: ${JSON.stringify(data.body.item)}\n\n`);
+                                response.write(`data: ${JSON.stringify(data.body.item)}`);
                             } else {
                                 response.write(`\n`);
                             }
@@ -129,6 +131,54 @@ app.get('/top_track', function (req, res) {
         )
 });
 
+app.get('/playlist', function (req, res) {
+
+    spotifyApi.getPlaylistTracks(process.env.PLAYLIST_ID, {fields: "items(track(album(artists, images, external_urls), name, uri))"})
+        .then(
+            function (data) {
+                // Get random subset of playlist
+                const randomTracks = getRandom(data.body.items, 5);
+                const retObj = {items: []};
+                randomTracks.map(({track}) => {
+                    retObj.items.push(track)
+                });
+                res.send(retObj);
+            },
+            function (err) {
+                res.sendStatus(401);
+                console.log(err);
+            }
+        )
+});
+
+app.post('/playlist', function (req, res) {
+    const {track} = req.body;
+    spotifyApi.addTracksToPlaylist(process.env.PLAYLIST_ID, [track])
+        .then(
+            function (data) {
+                res.sendStatus(200);
+            },
+            function (err) {
+                res.sendStatus(401);
+                console.log(err);
+            }
+        );
+});
+
+app.get('/search', function (req, res) {
+    const {title} = req.query;
+
+    spotifyApi.searchTracks(title, {limit: 5})
+        .then(
+            function (data) {
+                res.send(data.body);
+            },
+            function (err) {
+                res.sendStatus(401);
+                console.log(err);
+            }
+        )
+});
 
 app.get('/login', function (req, res) {
     const state = generateRandomString(16);
