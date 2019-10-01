@@ -1,37 +1,31 @@
 <template>
-    <div class="music" v-bind:class="{'is-complete':loaded}">
-        <SongInformation v-on:loaded="toggleLoaded"/>
+    <div class="container">
+        <RecommendSong/>
+        <SongRecommendations/>
     </div>
 </template>
 
 <script>
-    import SongInformation from "../components/SongInformation"
+    import SongRecommendations from "../components/SongRecommendations"
+    import RecommendSong from "../components/RecommendSong"
 
     export default {
         name: "Music",
-        components: {SongInformation},
-        data() {
-            return {
-                loaded: false,
-            }
-        },
-        methods: {
-            toggleLoaded() {
-                this.loaded = true
-            }
-        }
+        components: {SongRecommendations, RecommendSong}
+
     }
 </script>
 
-<style>
-    .music {
-        height: 0;
-        opacity: 0;
-        transition: opacity 1s, height 0.5s linear;
+<style lang="scss">
+    .info {
+        padding: 10px;
+        width: 500px;
     }
 
-    .is-complete {
-        height: 445px;
-        opacity: 1;
+    .container {
+        display: flex;
+        @media (max-width: 1280px) {
+            flex-direction: column;
+        }
     }
 </style>

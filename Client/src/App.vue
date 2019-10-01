@@ -1,7 +1,9 @@
 <template>
     <div id="app">
         <div id="nav">
-            <router-link to="/PersonalWebsite/">Music</router-link>
+            <router-link to="/PersonalWebsite/">Home</router-link>
+            |
+            <router-link to="/PersonalWebsite/Music">Music</router-link>
             |
             <router-link to="/PersonalWebsite/Resume">Resume</router-link>
         </div>
@@ -76,6 +78,10 @@
         display: table-cell;
         vertical-align: middle;
         height: 100%;
+    }
+
+    *:focus {
+        outline: none;
     }
 
     #nav {

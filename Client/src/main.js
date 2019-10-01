@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import Notifications from 'vue-notification'
 
 Vue.config.productionTip = false;
+
+Vue.use(Notifications);
 
 let handleOutsideClick;
 
@@ -33,7 +36,7 @@ Vue.directive('closable', {
         document.removeEventListener('click', handleOutsideClick)
         document.removeEventListener('touchstart', handleOutsideClick)
     }
-})
+});
 
 new Vue({
     router,

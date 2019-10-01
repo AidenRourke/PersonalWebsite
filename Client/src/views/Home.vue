@@ -1,26 +1,28 @@
 <template>
-    <div v-if="song">
-        <h3 v-if="current">Checkout what I'm listening to right now!</h3>
-        <h3 v-else>Checkout one of my favourite songs this
-            <Dropdown :options="arrayOfObjects" :selected="timerange" v-on:updateOption="updateTimerange"/>
-            !
-        </h3>
-        <a :href="song.external_urls.spotify" target="_blank">
-            <img :src="song.album.images[1].url"/>
-            <p>{{song.name}}</p>
-        </a>
-        <i>{{song.artists[0].name}}</i>
+    <div class="is-waiting" v-bind:class="{'is-complete':song}">
+        <div v-if="song">
+            <h3 v-if="current">Checkout what I'm listening to right now!</h3>
+            <h3 v-else>Checkout one of my favourite songs this
+                <Dropdown :options="arrayOfObjects" :selected="timerange" v-on:updateOption="updateTimerange"/>
+                !
+            </h3>
+            <a :href="song.external_urls.spotify" target="_blank">
+                <img :src="song.album.images[1].url"/>
+                <p>{{song.name}}</p>
+            </a>
+            <i>{{song.artists[0].name}}</i>
+        </div>
     </div>
 </template>
 
 <script>
-    import Dropdown from './Dropdown';
+    import Dropdown from '../components/Dropdown';
     import ApiService from '../services/ApiService';
 
     let evtSource;
 
     export default {
-        name: "SongInformation",
+        name: "Home",
         components: {Dropdown},
         data() {
             return {
@@ -71,7 +73,6 @@
                     } else {
                         this.getTopTrack()
                     }
-                    this.$emit('loaded')
                 }.bind(this), false);
             } catch (e) {
                 console.log("can't connect")
@@ -82,3 +83,15 @@
         }
     }
 </script>
+
+<style>
+    .is-waiting {
+        max-height: 0;
+        overflow: hidden;
+    }
+
+    .is-complete {
+        max-height: 500px;
+        transition: max-height 0.75s linear;
+    }
+</style>
