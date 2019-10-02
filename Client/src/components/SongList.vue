@@ -2,10 +2,13 @@
     <div class="is-waiting" v-bind:class="{'is-complete':loaded}">
         <ul>
             <li v-for="song in tracks">
-            <span v-on:click="handleClick(song.uri, song.album.external_urls.spotify)">
-                <img class="playlist_item" :src="song.album.images[2].url"/>
-                <span class="playlist_item">{{ song.name }} ({{ song.album.artists[0].name }})</span>
-            </span>
+            <div v-on:click="handleClick(song.uri, song.album.external_urls.spotify)">
+                <img class="playlist-item" :src="song.album.images[2].url"/>
+                <div class="playlist-item">
+                    <span class="song-name">{{ song.name }} </span>
+                    <span>({{ song.album.artists[0].name }})</span>
+                </div>
+            </div>
             </li>
         </ul>
     </div>
@@ -54,11 +57,15 @@
         padding: 0;
     }
 
-    a {
-        color: inherit;
+    .song-name{
+        display: block;
+        width: 400px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
-    .playlist_item {
+    .playlist-item {
         margin: 5px;
         vertical-align: middle;
         display: inline-block;

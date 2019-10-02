@@ -61,7 +61,7 @@ typings/
 .next
 
 .DS_Store
-/dist
+#/dist
 
 # Editor directories and files
 .idea

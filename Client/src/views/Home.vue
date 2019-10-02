@@ -1,16 +1,16 @@
 <template>
-    <div class="is-waiting" v-bind:class="{'is-complete':song}">
-        <div v-if="song">
-            <h3 v-if="current">Checkout what I'm listening to right now!</h3>
-            <h3 v-else>Checkout one of my favourite songs this
-                <Dropdown :options="arrayOfObjects" :selected="timerange" v-on:updateOption="updateTimerange"/>
-                !
-            </h3>
-            <a :href="song.external_urls.spotify" target="_blank">
-                <img :src="song.album.images[1].url"/>
-                <p>{{song.name}}</p>
-            </a>
-            <i>{{song.artists[0].name}}</i>
+    <div class="is-waiting" v-bind:class="{'is-complete':loaded}">
+        <div v-if="loaded">
+            <div v-if="currentTrack">
+                <h3>Checkout what I'm listening to right now!</h3>
+                <SongContainer v-bind:track="currentTrack"/>
+            </div>
+            <div v-else-if="topTrack">
+                <h3>Checkout one of my favourite songs this
+                    <Dropdown :options="arrayOfObjects" :selected="timerange" v-on:updateOption="updateTimerange"/>!
+                </h3>
+                <SongContainer v-bind:track="topTrack"/>
+            </div>
         </div>
     </div>
 </template>
@@ -18,16 +18,18 @@
 <script>
     import Dropdown from '../components/Dropdown';
     import ApiService from '../services/ApiService';
+    import SongContainer from '../components/SongContainer';
 
     let evtSource;
 
     export default {
         name: "Home",
-        components: {Dropdown},
+        components: {Dropdown, SongContainer},
         data() {
             return {
-                song: undefined,
-                current: false,
+                currentTrack: undefined,
+                topTrack: undefined,
+                loaded: false,
                 arrayOfObjects: [
                     {
                         name: "life",
@@ -56,22 +58,27 @@
             async getTopTrack() {
                 const res = await ApiService.getTopTrack(this.timerange.value);
                 if (res.data) {
-                    this.song = res.data;
-                    this.current = false;
+                    this.topTrack = res.data;
                 }
             },
         },
         async created() {
+            // Get and store top track
+            this.getTopTrack();
             try {
                 // Listen for a change in the current song for the server
                 evtSource = ApiService.startSSE();
                 evtSource.addEventListener('message', function (e) {
                     const res = JSON.parse(e.data);
                     if (res.name) {
-                        this.song = res;
-                        if (!this.current) this.current = true;
+                        this.currentTrack = res;
                     } else {
-                        this.getTopTrack()
+                        this.currentTrack = undefined;
+                    }
+                    // Loaded is important to avoid glitchy movements
+                    if (!this.loaded) {
+                        console.log("loaded");
+                        this.loaded = true;
                     }
                 }.bind(this), false);
             } catch (e) {

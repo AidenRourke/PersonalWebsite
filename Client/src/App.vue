@@ -67,6 +67,10 @@
         margin: 0;
     }
 
+    a {
+        color: inherit;
+    }
+
     body {
         background-color: #f6e8e5;
         box-sizing: border-box;
