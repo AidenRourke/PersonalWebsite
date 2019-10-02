@@ -94,6 +94,7 @@
 <style>
     .is-waiting {
         max-height: 0;
+        width: 600px;
         overflow: hidden;
     }
 
