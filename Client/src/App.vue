@@ -1,11 +1,11 @@
 <template>
     <div id="app">
         <div id="nav">
-            <router-link to="/PersonalWebsite/">Home</router-link>
+            <router-link to="/">Home</router-link>
             |
-            <router-link to="/PersonalWebsite/Music">Music</router-link>
+            <router-link to="/Music">Music</router-link>
             |
-            <router-link to="/PersonalWebsite/Resume">Resume</router-link>
+            <router-link to="/Resume">Resume</router-link>
         </div>
         <h1>Aiden Rourke</h1>
         <i>Ottawa, Canada</i>

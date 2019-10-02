@@ -7,7 +7,7 @@ Vue.use(Router);
 export default new Router({
     routes: [
         {
-            path: '/PersonalWebsite/Resume',
+            path: '/Resume',
             name: 'resume',
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
@@ -15,7 +15,7 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/Resume.vue')
         },
         {
-            path: '/PersonalWebsite/Music',
+            path: '/Music',
             name: 'music',
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
@@ -23,7 +23,7 @@ export default new Router({
             component: () => import(/* webpackChunkName: "about" */ './views/Music.vue')
         },
         {
-            path: '/PersonalWebsite/*',
+            path: '/*',
             name: 'home',
             component: Home
         }
