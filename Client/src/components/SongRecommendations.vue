@@ -1,7 +1,7 @@
 <template>
     <div class="info">
         <h3 style="margin: 0; padding: 10px">
-            Checkout someone else's favourite song!
+            Checkout someone else's recommendation!
         </h3>
         <SongList v-on:song-clicked="open" v-bind:tracks="tracks"/>
         <a target="_blank" href="https://open.spotify.com/playlist/7tEXf5AmNnSC169cCsKD5j">View all on Spotify</a>

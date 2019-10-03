@@ -19,7 +19,7 @@
 <style lang="scss">
     .info {
         padding: 10px;
-        width: 500px;
+        flex: 1;
     }
 
     .container {

@@ -61,6 +61,8 @@
         height: 100%;
         display: table;
         margin: auto;
+        position: relative;
+        width: 100%;
     }
 
     h1 {

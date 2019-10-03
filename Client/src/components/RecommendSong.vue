@@ -2,7 +2,7 @@
     <div class="info">
         <notifications position="bottom center"
                        :speed="500" />
-        <input @keyup.enter="onSubmit" type="text" v-model="title" name="search" placeholder="Tell me your favourite song!"/>
+        <input @keyup.enter="onSubmit" type="text" v-model="title" name="search" placeholder="Recommend me a song!"/>
         <SongList v-on:song-clicked="addSong" v-bind:tracks="tracks"/>
     </div>
 </template>

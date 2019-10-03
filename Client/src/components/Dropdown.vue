@@ -91,7 +91,7 @@
         list-style: none;
         font-size: 14px;
         text-align: left;
-        background-color: rgba(255, 255, 255, .5);
+        background-color: rgba(255, 255, 255, .70);
         border: transparent;
         border-radius: 4px;
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);

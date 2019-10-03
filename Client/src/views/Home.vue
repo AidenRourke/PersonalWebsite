@@ -6,7 +6,7 @@
                 <SongContainer v-bind:track="currentTrack"/>
             </div>
             <div v-else-if="topTrack">
-                <h3>Checkout one of my favourite songs this
+                <h3 style="padding: 0 40px;">Checkout one of my favourite songs this
                     <Dropdown :options="arrayOfObjects" :selected="timerange" v-on:updateOption="updateTimerange"/>!
                 </h3>
                 <SongContainer v-bind:track="topTrack"/>
@@ -94,7 +94,6 @@
 <style>
     .is-waiting {
         max-height: 0;
-        width: 600px;
         overflow: hidden;
     }
 
