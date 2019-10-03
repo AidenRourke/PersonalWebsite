@@ -41,7 +41,7 @@
     }
 </script>
 
-<style>
+<style lang="scss">
     .home {
         margin: auto;
         text-align: left;
@@ -71,6 +71,11 @@
 
     a {
         color: inherit;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
     }
 
     body {
