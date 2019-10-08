@@ -36,12 +36,13 @@
 
 <style scoped lang="scss">
     .is-waiting {
+        margin: 10px;
         max-height: 0;
-        overflow: hidden;
+        overflow: scroll;
     }
 
     .is-complete {
-        max-height: 500px;
+        max-height: 333px;
         transition: max-height 0.75s linear;
     }
 
@@ -55,6 +56,7 @@
 
     ul {
         padding: 0;
+        margin: 0;
     }
 
     .list-item {
@@ -71,6 +73,7 @@
     }
 
     .playlist-item {
+        height: 64px;
         margin: 5px;
         vertical-align: middle;
         display: inline-block;

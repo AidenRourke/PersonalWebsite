@@ -136,12 +136,8 @@ app.get('/playlist', function (req, res) {
     spotifyApi.getPlaylistTracks(process.env.PLAYLIST_ID, {fields: "items(track(album(artists, images, external_urls), name, uri))"})
         .then(
             function (data) {
-                let tracks = data.body.items
+                let tracks = data.body.items;
                 const retObj = {items: []};
-                if (tracks.length > 5) {
-                    // Get random subset of playlist
-                    tracks = getRandom(data.body.items, 5);
-                }
                 tracks.map(({track}) => {
                     retObj.items.push(track)
                 });
@@ -171,7 +167,7 @@ app.post('/playlist', function (req, res) {
 app.get('/search', function (req, res) {
     const {title} = req.query;
 
-    spotifyApi.searchTracks(title, {limit: 5})
+    spotifyApi.searchTracks(title)
         .then(
             function (data) {
                 res.send(data.body);

@@ -1,7 +1,5 @@
 <template>
     <div class="info">
-        <notifications position="bottom center"
-                       :speed="500"/>
         <input class="input" @keyup.enter="onSubmit" type="text" v-model="title" name="search"
                placeholder="Recommend me a song!"/>
         <input class="submit" type="submit" value="Search" @click="onSubmit"/>
@@ -43,14 +41,15 @@
                 }
                 this.empty = this.tracks.length === 0 && this.title;
             },
-            addSong({uri}) {
+            async addSong({uri}) {
                 this.tracks = [];
                 this.title = "";
                 this.$notify({
                     text: "Thanks for the recommendation!",
                     type: "success"
                 });
-                ApiService.postTrack(uri);
+                await ApiService.postTrack(uri);
+                this.$emit('refresh')
             }
         }
     }
